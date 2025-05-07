@@ -77,11 +77,13 @@ npm run dev
 
 ### .env.local Example
 
+```bash
 GITHUB_CLIENT_ID=your_client_id
 GITHUB_CLIENT_SECRET=your_client_secret
 GITHUB_APP_ID=your_app_id
 GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+```
 
 ### 🔐 GitHub Integration Flow
 
