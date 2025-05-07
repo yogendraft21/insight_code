@@ -73,7 +73,7 @@ git clone https://github.com/YOUR_ORG/ai-code-reviewer.git
 cd ai-code-reviewer
 npm install
 npm run dev
-
+```
 
 ### .env.local Example
 
@@ -129,4 +129,3 @@ Your GitHub App should request:
 This project is licensed under the MIT License — see LICENSE file for details.
 
 <div align="center"> Built with ❤️ by your team. </div> 
-```
