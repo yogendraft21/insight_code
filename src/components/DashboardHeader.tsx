@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,13 +11,33 @@ import { Link, useNavigate } from "react-router-dom";
 import { Bell, LogOut, Settings, User } from "lucide-react";
 import { toast } from "sonner";
 
+import { useAppDispatch } from "@/lib/redux/hooks";
+import api from "@/lib/api";
+import { clearUser } from "@/lib/redux/slices/userSlice";
+
 const DashboardHeader = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  const handleLogout = () => {
-    // Simulate logout
-    toast.success("Logged out successfully");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await api.auth.logout();
+
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("refreshToken");
+
+      dispatch(clearUser());
+      toast.success("Logged out successfully");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("refreshToken");
+      dispatch(clearUser());
+
+      toast.success("Logged out successfully");
+      navigate("/");
+    }
   };
 
   return (
@@ -28,17 +47,17 @@ const DashboardHeader = () => {
           <h2 className="text-xl font-semibold">Dashboard</h2>
         </div>
       </div>
-      
+
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" aria-label="Notifications">
           <Bell size={20} />
         </Button>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="flex items-center gap-2"
             >
               <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
@@ -46,7 +65,9 @@ const DashboardHeader = () => {
               </div>
               <div className="hidden md:block text-left">
                 <div className="text-sm font-medium">John Doe</div>
-                <div className="text-xs text-muted-foreground">john@example.com</div>
+                <div className="text-xs text-muted-foreground">
+                  john@example.com
+                </div>
               </div>
             </Button>
           </DropdownMenuTrigger>
