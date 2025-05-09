@@ -59,7 +59,7 @@ const LoginPage = () => {
         <div className="bg-card border rounded-lg shadow-sm p-8">
           <h1 className="text-2xl font-bold text-center mb-6">Sign in to your account</h1>
           
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <Button 
               variant="outline" 
               className="w-full flex items-center justify-center gap-2" 
@@ -85,7 +85,7 @@ const LoginPage = () => {
             <Separator className="flex-1" />
             <span className="mx-4 text-sm text-muted-foreground">or</span>
             <Separator className="flex-1" />
-          </div>
+          </div> */}
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">

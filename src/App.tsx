@@ -18,6 +18,7 @@ import RepositoriesPage from "./pages/RepositoriesPage";
 import AIEngineerPage from "./pages/AIEngineerPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import IntegrationsPage from "./pages/IntegrationsPage";
+import SignupPage from "./pages/RegisterPage";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
