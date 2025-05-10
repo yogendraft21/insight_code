@@ -81,7 +81,7 @@ const App = () => (
               <SubscriptionPage />
             </ProtectedRoute>
           } />
-          <Route path="/dashboard/integrations" element={
+          <Route path="/dashboard/notifications" element={
             <ProtectedRoute>
               <IntegrationsPage />
             </ProtectedRoute>
