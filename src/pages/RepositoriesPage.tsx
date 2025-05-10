@@ -39,6 +39,8 @@ const RepositoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeProvider, setActiveProvider] = useState("all");
 
+  console.log("GitHub Status:", gitHubStatus);
+
   useEffect(() => {
     if (gitHubStatus.installed) {
       loadRepositories();
@@ -161,7 +163,7 @@ const RepositoriesPage = () => {
               </p>
             </div>
 
-            
+
 
             <RepositoryStatusCard
               gitHubStatus={gitHubStatus}
