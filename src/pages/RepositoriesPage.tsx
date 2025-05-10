@@ -29,7 +29,6 @@ const RepositoriesPage = () => {
   const {
     gitHubStatus,
     handleInstallGitHubApp,
-    checkGitHubInstallation,
     fetchRepositories,
     isInstalling,
   } = useGitIntegration();
