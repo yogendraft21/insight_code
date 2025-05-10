@@ -29,6 +29,16 @@ const DashboardHeader = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  function factorial(n=6) {
+    if (n < 0) {
+      return "Factorial not defined for negative numbers.";
+    }
+    if (n === 0 || n === 1) {
+      return 1;
+    }
+    return n * factorial(n - 1);
+  }
+
   const handleLogout = async () => {
     try {
       await api.auth.logout();
