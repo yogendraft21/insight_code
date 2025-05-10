@@ -7,6 +7,7 @@ export type { ApiClientConfig } from './client';
 import * as authApi from './endpoints/auth';
 import * as codeReviewsApi from './endpoints/codeReviews';
 import * as repositoriesApi from './endpoints/repositories';
+import * as pullRequestsApi from './endpoints/pullRequests';
 export * from './endpoints/github'
 
 /**
@@ -16,6 +17,7 @@ const api = {
   auth: authApi,
   codeReviews: codeReviewsApi,
   repositories: repositoriesApi,
+  pullRequests: pullRequestsApi,
 };
 
 export default api;
