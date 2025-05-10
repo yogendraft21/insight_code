@@ -1,4 +1,4 @@
-import { apiRequest } from '../client';
+import { apiRequest } from "../client";
 
 export interface PullRequestAuthor {
   githubId: string;
@@ -8,14 +8,14 @@ export interface PullRequestAuthor {
 
 export interface PRReview {
   reviewId: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  status: "pending" | "in_progress" | "completed" | "failed";
   summary?: string;
   feedback?: Array<{
     path: string;
     line: number;
     comment: string;
-    type: 'suggestion' | 'issue' | 'praise' | 'question';
-    severity: 'low' | 'medium' | 'high';
+    type: "suggestion" | "issue" | "praise" | "question";
+    severity: "low" | "medium" | "high";
   }>;
   metrics?: {
     codeQualityScore: number;
@@ -44,7 +44,7 @@ export interface PullRequestData {
   title: string;
   description?: string;
   author: PullRequestAuthor;
-  state: 'open' | 'closed' | 'merged';
+  state: "open" | "closed" | "merged";
   url: string;
   lastCommitSha: string;
   baseBranch?: string;
@@ -62,7 +62,7 @@ export interface PullRequestData {
 }
 
 export interface PullRequestQueryOptions {
-  state?: 'open' | 'closed' | 'merged';
+  state?: "open" | "closed" | "merged";
 }
 
 export interface PullRequestsResponse {
@@ -82,68 +82,83 @@ export interface ReviewResponse {
   message: string;
 }
 
-export const getUserPullRequests = async (options?: PullRequestQueryOptions): Promise<PullRequestsResponse> => {
-  const queryParams = new URLSearchParams();
-  if (options?.state) {
-    queryParams.append('state', options.state);
-  }
-  
-  const url = `/pull-requests${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-  
-  return apiRequest<PullRequestsResponse>({
-    url,
-    method: 'GET',
-  });
-};
-
-export const fetchRepositoryPullRequests = async (
-  repositoryId: string, 
+export const getUserPullRequests = async (
   options?: PullRequestQueryOptions
 ): Promise<PullRequestsResponse> => {
   const queryParams = new URLSearchParams();
   if (options?.state) {
-    queryParams.append('state', options.state);
+    queryParams.append("state", options.state);
   }
-  
-  const url = `/pull-requests/repository/${repositoryId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-  
+
+  const url = `/pull-requests${
+    queryParams.toString() ? `?${queryParams.toString()}` : ""
+  }`;
+
   return apiRequest<PullRequestsResponse>({
     url,
-    method: 'GET',
+    method: "GET",
   });
 };
 
-export const syncAllPullRequests = async (): Promise<PullRequestSyncResponse> => {
-  return apiRequest<PullRequestSyncResponse>({
-    url: '/pull-requests/sync',
-    method: 'POST',
+export const fetchRepositoryPullRequests = async (
+  repositoryId: string,
+  options?: PullRequestQueryOptions
+): Promise<PullRequestsResponse> => {
+  const queryParams = new URLSearchParams();
+  if (options?.state) {
+    queryParams.append("state", options.state);
+  }
+
+  const url = `/pull-requests/repository/${repositoryId}${
+    queryParams.toString() ? `?${queryParams.toString()}` : ""
+  }`;
+
+  return apiRequest<PullRequestsResponse>({
+    url,
+    method: "GET",
   });
 };
 
-export const syncRepositoryPullRequests = async (repositoryId: string): Promise<PullRequestSyncResponse> => {
+export const syncAllPullRequests =
+  async (): Promise<PullRequestSyncResponse> => {
+    return apiRequest<PullRequestSyncResponse>({
+      url: "/pull-requests/sync",
+      method: "POST",
+    });
+  };
+
+export const syncRepositoryPullRequests = async (
+  repositoryId: string
+): Promise<PullRequestSyncResponse> => {
   return apiRequest<PullRequestSyncResponse>({
     url: `/pull-requests/sync/${repositoryId}`,
-    method: 'POST',
+    method: "POST",
   });
 };
 
-export const triggerPullRequestReview = async (pullRequestId: string): Promise<ReviewResponse> => {
+export const triggerPullRequestReview = async (
+  pullRequestId: string,
+  isReReview: boolean = false
+): Promise<ReviewResponse> => {
   return apiRequest<ReviewResponse>({
     url: `/pull-requests/${pullRequestId}/review`,
-    method: 'POST',
+    method: "POST",
+    data: {
+      reReview: isReReview,
+    },
   });
 };
 
-export const getPullRequestStatusColor = (state: PullRequestData['state']) => {
+export const getPullRequestStatusColor = (state: PullRequestData["state"]) => {
   switch (state) {
-    case 'open':
-      return 'green';
-    case 'closed':
-      return 'red';
-    case 'merged':
-      return 'purple';
+    case "open":
+      return "green";
+    case "closed":
+      return "red";
+    case "merged":
+      return "purple";
     default:
-      return 'gray';
+      return "gray";
   }
 };
 

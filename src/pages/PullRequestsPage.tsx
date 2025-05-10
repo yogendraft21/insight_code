@@ -65,7 +65,12 @@ const PullRequestsPage = () => {
   const handleTriggerReview = async (prId: string) => {
     try {
       setReviewingPrId(prId);
-      const response = await api.pullRequests.triggerPullRequestReview(prId);
+      const pr = pullRequests.find((p) => p._id === prId);
+      const hasExistingReview = pr && pr.reviews && pr.reviews.length > 0;
+      const response = await api.pullRequests.triggerPullRequestReview(
+        prId,
+        hasExistingReview
+      );
       toast.success(response.message);
       await fetchPullRequests();
     } catch (error) {
@@ -334,7 +339,9 @@ const PullRequestsPage = () => {
                                 ) : (
                                   <>
                                     <Bot className="h-3 w-3 mr-1" />
-                                    AI Review
+                                    {pr.reviews.length > 0
+                                      ? "Re-review"
+                                      : "AI Review"}
                                   </>
                                 )}
                               </Button>
