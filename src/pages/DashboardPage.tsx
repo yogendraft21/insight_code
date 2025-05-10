@@ -5,8 +5,11 @@ import DashboardHeader from "@/components/DashboardHeader";
 import StatCard from "@/components/StatCard";
 import PerformanceChart from "@/components/PerformanceChart";
 import { ChartBar, Check, Clock, FolderOpen } from "lucide-react";
+import { useAppSelector } from "@/lib/redux/hooks";
 
 const DashboardPage = () => {
+  const user = useAppSelector((state) => state.user.user);
+  const firstName = user?.name?.split(' ')[0] || "User";
   return (
     <div className="flex h-screen">
       <DashboardSidebar />
@@ -17,7 +20,7 @@ const DashboardPage = () => {
         <main className="flex-1 overflow-auto p-4 md:p-6">
           <div className="grid gap-6">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Welcome back, John</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Welcome back, {firstName}</h1>
               <p className="text-muted-foreground">Here's an overview of your recent activity and insights</p>
             </div>
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,17 +8,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, useNavigate } from "react-router-dom";
-import { Bell, LogOut, Settings, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Settings, User } from "lucide-react";
 import { toast } from "sonner";
 
-import { useAppDispatch } from "@/lib/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import api from "@/lib/api";
 import { clearUser } from "@/lib/redux/slices/userSlice";
+
+// Import our custom popup components
+import NotificationsPopup from "./NotificationsPopup";
+import ProfilePopup from "./ProfilePopup";
+import SettingsPopup from "./SettingsPopup";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user.user);
+
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -40,6 +50,10 @@ const DashboardHeader = () => {
     }
   };
 
+  // Default display values in case user data is not available
+  const displayName = user?.name || "User";
+  const displayEmail = user?.email || "No email";
+
   return (
     <header className="bg-background border-b h-16 flex items-center px-4 md:px-6">
       <div className="flex-1">
@@ -49,9 +63,8 @@ const DashboardHeader = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" aria-label="Notifications">
-          <Bell size={20} />
-        </Button>
+        {/* Notifications component */}
+        <NotificationsPopup />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -64,9 +77,9 @@ const DashboardHeader = () => {
                 <User size={16} />
               </div>
               <div className="hidden md:block text-left">
-                <div className="text-sm font-medium">John Doe</div>
+                <div className="text-sm font-medium">{displayName}</div>
                 <div className="text-xs text-muted-foreground">
-                  john@example.com
+                  {displayEmail}
                 </div>
               </div>
             </Button>
@@ -74,17 +87,13 @@ const DashboardHeader = () => {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/dashboard/profile" className="w-full cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </Link>
+            <DropdownMenuItem onClick={() => setIsProfileOpen(true)} className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/dashboard/settings" className="w-full cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </Link>
+            <DropdownMenuItem onClick={() => setIsSettingsOpen(true)} className="cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
@@ -94,6 +103,19 @@ const DashboardHeader = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Profile Popup */}
+      <ProfilePopup 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+        user={user}
+      />
+
+      {/* Settings Popup */}
+      <SettingsPopup 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </header>
   );
 };

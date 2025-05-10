@@ -14,6 +14,11 @@ import {
   ArrowUpRight,
   Zap,
   ChevronLeft,
+  Github,
+  Gitlab,
+  Slack,
+  Landmark,
+  Workflow,
 } from "lucide-react";
 import FeatureCard from "@/components/FeatureCard";
 import CodeReviewExample from "@/components/CodeReviewExample";
@@ -33,7 +38,8 @@ const HomePage = () => {
       author: "Sarah Kim",
       role: "CTO",
       company: "Acme Tech",
-      avatar: "http://www.ag-decor.com/wp-content/uploads/2014/10/Smiling-Man-4.jpg",
+      avatar:
+        "http://www.ag-decor.com/wp-content/uploads/2014/10/Smiling-Man-4.jpg",
       logo: (
         <div className="w-24 h-6 bg-primary/10 rounded flex items-center justify-center text-primary font-semibold">
           Acme Tech
@@ -72,7 +78,8 @@ const HomePage = () => {
       author: "Jessica Chen",
       role: "Lead Developer",
       company: "DevForce",
-      avatar: "https://www.bllifesciences.com/wp-content/uploads/2022/06/testimonialjpg.jpg",
+      avatar:
+        "https://www.bllifesciences.com/wp-content/uploads/2022/06/testimonialjpg.jpg",
       logo: (
         <div className="w-24 h-6 bg-primary/10 rounded flex items-center justify-center text-primary font-semibold">
           DevForce
@@ -94,12 +101,36 @@ const HomePage = () => {
   };
 
   const integrationLogos = [
-    { name: "GitHub", color: "bg-[#24292e]", textColor: "text-white" },
-    { name: "GitLab", color: "bg-[#fc6d26]", textColor: "text-white" },
-    { name: "Bitbucket", color: "bg-[#0052cc]", textColor: "text-white" },
-    { name: "Slack", color: "bg-[#4a154b]", textColor: "text-white" },
-    { name: "Jira", color: "bg-[#0052cc]", textColor: "text-white" },
-    { name: "Linear", color: "bg-[#5E6AD2]", textColor: "text-white" },
+    {
+      name: "GitHub",
+      icon: Github,
+      color: "bg-[#24292e]",
+      textColor: "text-white",
+    },
+    {
+      name: "GitLab",
+      icon: Gitlab,
+      color: "bg-[#fc6d26]",
+      textColor: "text-white",
+    },
+    {
+      name: "Slack",
+      icon: Slack,
+      color: "bg-[#4a154b]",
+      textColor: "text-white",
+    },
+    {
+      name: "Jira",
+      icon: Landmark, 
+      color: "bg-[#0052cc]",
+      textColor: "text-white",
+    },
+    {
+      name: "Linear",
+      icon: Workflow, 
+      color: "bg-[#5E6AD2]",
+      textColor: "text-white",
+    },
   ];
 
   return (
@@ -214,9 +245,10 @@ const HomePage = () => {
                 className="transform hover:scale-105 transition-transform"
               >
                 <div
-                  className={`h-10 w-32 ${logo.color} ${logo.textColor} rounded-md flex items-center justify-center shadow-md font-medium`}
+                  className={`h-12 w-36 ${logo.color} ${logo.textColor} rounded-md flex items-center justify-center gap-2 shadow-md font-medium px-2`}
                 >
-                  {logo.name}
+                  <logo.icon className="h-5 w-5" />
+                  <span className="text-sm">{logo.name}</span>
                 </div>
               </div>
             ))}

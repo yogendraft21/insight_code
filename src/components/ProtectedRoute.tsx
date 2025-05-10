@@ -41,7 +41,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       try {
         const userData = await api.auth.getCurrentUser();
 
-        dispatch(setUser(userData));
+        dispatch(setUser(userData?.user));
         dispatch(setError(null));
       } catch (error: any) {
         try {
@@ -58,7 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
           const userData = await api.auth.getCurrentUser();
 
-          dispatch(setUser(userData));
+          dispatch(setUser(userData?.user));
 
           dispatch(setError(null));
         } catch (refreshError: any) {

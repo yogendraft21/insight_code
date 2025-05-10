@@ -7,6 +7,7 @@ export type { ApiClientConfig } from './client';
 import * as authApi from './endpoints/auth';
 import * as codeReviewsApi from './endpoints/codeReviews';
 import * as repositoriesApi from './endpoints/repositories';
+export * from './endpoints/github'
 
 /**
  * API client organized by domains

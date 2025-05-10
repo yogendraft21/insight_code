@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 // Types
@@ -6,7 +6,7 @@ interface GitHubStatus {
   installed: boolean;
   organizationName: string | null;
   installationId: number | null;
-  gitlabConnected: boolean;
+  accountType: string | null;
 }
 
 interface Repository {
@@ -19,132 +19,211 @@ interface Repository {
   reviewsCount: number;
 }
 
+interface PrepareInstallationResponse {
+  success: boolean;
+  oauthUrl: string;
+}
+
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+
 export const useGitIntegration = () => {
-  // State
   const [gitHubStatus, setGitHubStatus] = useState<GitHubStatus>({
     installed: false,
     organizationName: null,
     installationId: null,
-    gitlabConnected: false
+    accountType: null,
   });
+  
+  const [isInstalling, setIsInstalling] = useState(false);
+  const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
-  // GitHub OAuth URL constructor
-  const getGitHubOAuthUrl = () => {
-    const clientId = import.meta.env.VITE_GITHUB_OAUTH_CLIENT_ID;
-    const redirectUri = import.meta.env.VITE_GITHUB_REDIRECT_URI || 
-      `${window.location.origin}/api/auth/github/callback`;
-
-    const scope = encodeURIComponent('repo user:email');
-    return `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
-  };
-
-  // GitHub App installation URL constructor
-  const getGitHubAppInstallUrl = () => {
-    const appName = import.meta.env.VITE_GITHUB_APP_NAME;
-    return `https://github.com/apps/${appName}/installations/new`;
-  };
-
-  useEffect(() => {
-    // Check if we have GitHub tokens in local storage or in the URL
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    
-    if (token) {
-      // Clear URL without refreshing page
-      window.history.replaceState({}, document.title, window.location.pathname);
-      localStorage.setItem('authToken', token);
-      
-      // Get GitHub app installation status after authentication
-      checkGitHubInstallation();
-    }
-    
-    // Check for existing token
-    const existingToken = localStorage.getItem('authToken');
-    if (existingToken) {
-      // Validate token and get installation status
-      checkGitHubInstallation();
-    }
-  }, []);
-
-  // Check GitHub App installation status
-  const checkGitHubInstallation = async () => {
+  const prepareInstallation = async (): Promise<PrepareInstallationResponse | null> => {
     try {
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        toast.error("Please login first");
+        return null;
+      }
 
-      const response = await fetch('/api/github/installation', {
+      const response = await fetch(`${BASE_URL}/github/prepare-installation`, {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      if (!response.ok) throw new Error('Failed to get GitHub installation status');
-      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to prepare GitHub installation");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error preparing GitHub installation:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to prepare GitHub installation");
+      return null;
+    }
+  };
+
+  const checkGitHubInstallation = async (): Promise<boolean> => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return false;
+
+      const response = await fetch(`${BASE_URL}/github/installation`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get GitHub installation status");
+      }
+
       const data = await response.json();
       setGitHubStatus({
         installed: data.installed,
         organizationName: data.organizationName,
         installationId: data.installationId,
-        gitlabConnected: data.gitlabConnected || false
+        accountType: data.accountType,
       });
+
+      return data.installed;
+    } catch (error) {
+      console.error("Error checking GitHub installation:", error);
+      return false;
+    }
+  };
+
+  const startPolling = () => {
+    setIsInstalling(true);
+    let checkCount = 0;
+    const maxChecks = 60;
+  
+    pollingInterval.current = setInterval(async () => {
+      checkCount++;
       
-      if (data.installed) {
-        toast.success("GitHub App is installed");
+      const isInstalled = await checkGitHubInstallation();
+      
+      if (isInstalled) {
+        stopPolling();
+        toast.success('GitHub App installed successfully!');
+        setIsInstalling(false);
+        localStorage.removeItem('github_installing');
+      }
+      
+      if (checkCount >= maxChecks) {
+        stopPolling();
+        toast.error('Installation timeout. Please try again.');
+        setIsInstalling(false);
+        localStorage.removeItem('github_installing');
+      }
+    }, 5000);
+  };
+
+  const stopPolling = () => {
+    if (pollingInterval.current) {
+      clearInterval(pollingInterval.current);
+      pollingInterval.current = null;
+    }
+  };
+
+  const handleInstallGitHubApp = async () => {
+    try {
+      const prepareResult = await prepareInstallation();
+  
+      if (!prepareResult || !prepareResult.success) {
+        return;
+      }
+  
+      startPolling();
+  
+      if (prepareResult.oauthUrl) {
+        // Change this line to open in new window:
+        const width = 600;
+        const height = 700;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+        
+        window.open(
+          prepareResult.oauthUrl,
+          'github-oauth',
+          `width=${width},height=${height},left=${left},top=${top}`
+        );
+      } else {
+        toast.error("Failed to get GitHub OAuth URL");
+        stopPolling();
       }
     } catch (error) {
-      console.error('Error checking GitHub installation:', error);
-      toast.error('Failed to check GitHub installation status');
+      console.error("Error installing GitHub app:", error);
+      toast.error("Failed to install GitHub app");
+      stopPolling();
     }
   };
 
-  // Handler to install GitHub App
-  const handleInstallGitHubApp = () => {
-    const installUrl = getGitHubAppInstallUrl();
-    if (installUrl && !installUrl.includes('undefined')) {
-      window.open(installUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      toast.error('GitHub App installation URL is not properly configured');
-    }
-  };
-
-  // Handler to authenticate with GitHub OAuth
-  const handleGitHubAuth = () => {
-    const oauthUrl = getGitHubOAuthUrl();
-    if (!oauthUrl.includes('undefined')) {
-      window.location.href = oauthUrl;
-    } else {
-      toast.error('GitHub OAuth URL is not properly configured');
-    }
-  };
-
-  // Fetch repositories
   const fetchRepositories = async (): Promise<Repository[] | null> => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return null;
 
-      const response = await fetch('/api/repositories', {
+      const response = await fetch(`${BASE_URL}/github/repositories`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (!response.ok) throw new Error('Failed to fetch repositories');
-      
+      if (!response.ok) throw new Error("Failed to fetch repositories");
+
       return await response.json();
     } catch (error) {
-      console.error('Error fetching repositories:', error);
-      toast.error('Failed to fetch repositories');
+      console.error("Error fetching repositories:", error);
+      toast.error("Failed to fetch repositories");
       return null;
     }
   };
 
+useEffect(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const installation = urlParams.get('installation');
+  const error = urlParams.get('error');
+
+  if (installation === 'success') {
+    toast.success('GitHub App installed successfully!');
+    checkGitHubInstallation();
+    // Clean up URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  } else if (error) {
+    toast.error(`Installation failed: ${decodeURIComponent(error)}`);
+    // Clean up URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}, []);
+
+  useEffect(() => {
+    if (isInstalling) {
+      localStorage.setItem('github_installing', 'true');
+    }
+  }, [isInstalling]);
+
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
+  }, []);
+
+  useEffect(() => {
+    checkGitHubInstallation();
+  }, []);
+
   return {
     gitHubStatus,
-    handleGitHubAuth,
     handleInstallGitHubApp,
     checkGitHubInstallation,
-    fetchRepositories
+    fetchRepositories,
+    isInstalling,
   };
 };
 

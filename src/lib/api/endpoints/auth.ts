@@ -68,8 +68,8 @@ export const logout = async (): Promise<void> => {
 /**
  * Get current user information
  */
-export const getCurrentUser = async (): Promise<AuthResponse['user']> => {
-  return apiRequest<AuthResponse['user']>({
+export const getCurrentUser = async (): Promise<any> => {
+  return apiRequest({
     url: '/auth/me',
     method: 'GET',
   });
