@@ -38,10 +38,6 @@ const RepositoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeProvider, setActiveProvider] = useState("all");
 
-  console.log("GitHub Status:", gitHubStatus);
-  console.log("Repositories:", repositories);
-  console.log("fjdlfjldskfjlsdkfjl");
-
   useEffect(() => {
     if (gitHubStatus.installed) {
       loadRepositories();
