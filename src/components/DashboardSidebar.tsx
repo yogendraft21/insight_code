@@ -12,7 +12,7 @@ import {
   Settings,
   UserCog,
   CreditCard,
-  Zap
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -61,16 +61,16 @@ const DashboardSidebar = () => {
       label: "Pull Requests",
       to: "/dashboard/pull-requests"
     },
-    {
-      icon: Check,
-      label: "Code Reviews",
-      to: "/dashboard/code-reviews"
-    },
-    {
-      icon: ChartBar,
-      label: "Analytics",
-      to: "/dashboard/analytics"
-    },
+    // {
+    //   icon: Check,
+    //   label: "Code Reviews",
+    //   to: "/dashboard/code-reviews"
+    // },
+    // {
+    //   icon: ChartBar,
+    //   label: "Analytics",
+    //   to: "/dashboard/analytics"
+    // },
     {
       icon: Settings,
       label: "Repositories",
@@ -90,9 +90,9 @@ const DashboardSidebar = () => {
       to: "/dashboard/subscription"
     },
     {
-      icon: Zap,
-      label: "Integrations",
-      to: "/dashboard/integrations"
+      icon: Bell,
+      label: "Notificatons",
+      to: "/dashboard/notifications"
     }
   ];
 
